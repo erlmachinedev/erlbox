@@ -1,0 +1,2 @@
+-module(erlbox).
+-export([]).

@@ -1,0 +1,12 @@
+{application, erlbox,
+ [
+  {description,  "A small box to organize Erlmachine code"},
+  {vsn,          "1.0.0"},
+  {modules,      []},
+  {applications, [
+                  kernel, stdlib
+                 ]},
+
+  {licenses, ["apache-2.0"]},
+  {links, [{"Github", "https://github.com/erlmachine/erlbox"}]}
+ ]}.
