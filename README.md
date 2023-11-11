@@ -1,2 +1,2 @@
 # erlbox
-A small box to organize Erlmachine code  
+A small box to organize Erlang code  
