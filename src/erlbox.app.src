@@ -1,6 +1,6 @@
 {application, erlbox,
  [
-  {description,  "A small box to organize Erlmachine code"},
+  {description,  "A small box to organize Erlang code"},
   {vsn,          "1.0.0"},
   {modules,      []},
   {applications, [
