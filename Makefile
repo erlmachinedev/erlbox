@@ -1,5 +1,5 @@
 PROJECT = erlbox
-PROJECT_DESCRIPTION = A small box to organize Erlmachine code
+PROJECT_DESCRIPTION = A small box to organize Erlang code
 PROJECT_VERSION = 1.0.0
 
 TEST_DEPS = meck
