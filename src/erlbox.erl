@@ -13,8 +13,8 @@
 -export([is_success/1, is_failure/1]).
 
 -export([attributes/1]).
--export([behaviours/1]).
--export([optional_callback/3, optional_callback/4]).
+-export([behaviours/1, callback/4]).
+
 -export([vsn/1]).
 
 -export([timestamp/0]).
@@ -34,11 +34,11 @@
 
 %%% Application API
 
--spec get_key(Key::atom()) -> 'undefined' | success(term()).
+-spec get_key(atom()) -> undefined | success(term()).
 get_key(Key) ->
     get_key(?MODULE, Key).
 
--spec get_key(App::module(), Key::atom()) -> 'undefined' | success(term()).
+-spec get_key(module(), atom()) -> undefined | success(term()).
 get_key(App, Key) ->
     application:get_key(App, Key).
 
@@ -46,24 +46,30 @@ get_key(App, Key) ->
 priv_dir() ->
     code:priv_dir(?MODULE).
 
--spec filename(Path::list()) -> list().
+-spec filename(file:filename()) -> file:filename().
 filename(Path) ->
     filename:join(priv_dir(), Path).
 
 -spec modules() -> [module()].
 modules() ->
-    {ok, Modules} = get_key(?MODULE, 'modules'),
-    Modules.
+    {ok, Mods} = get_key(?MODULE, modules),
+    
+    Res = Mods,
+    Res.
 
 -spec vsn() -> binary().
 vsn() ->
-    {ok, Vsn} = get_key(?MODULE, 'vsn'),
-    Vsn.
+    {ok, Vsn} = get_key(?MODULE, vsn),
+    
+    Res = Vsn,
+    Res.
 
 -spec description() ->  binary().
 description() ->
-    {ok, Desc} = get_key(?MODULE, 'description'),
-    Desc.
+    {ok, Desc} = get_key(?MODULE, description),
+    
+    Res = Desc,
+    Res.
 
 %%% Response API
 
@@ -71,16 +77,15 @@ description() ->
 failure() ->
     error.
 
--spec failure(E::term()) -> failure(term()).
+-spec failure(term()) -> failure(term()).
 failure(E) ->
     {error, E}.
 
--spec failure(E::term(), R::term()) ->
-                     failure(term(), term()).
+-spec failure(term(), term()) -> failure(term(), term()).
 failure(E, R) ->
     {error, {E, R}}.
 
--spec failure(E::term(), R::term(), S::term()) -> failure(term(), term(), term()).
+-spec failure(term(), term(), term()) -> failure(term(), term(), term()).
 failure(E, R, S) ->
     {error, {E, R}, S}.
 
@@ -88,15 +93,15 @@ failure(E, R, S) ->
 success() ->
     ok.
 
--spec success(Res::term()) -> success(term()).
+-spec success(term()) -> success(term()).
 success(Res) ->
     {ok, Res}.
 
--spec success(Res::term(), S::term()) -> success(term(), term()).
+-spec success(term(), term()) -> success(term(), term()).
 success(Res, S) ->
     {ok, Res, S}.
 
--spec success(Res::term(), S::term(), A::[term()]) -> success(term(), term(), [term()]).
+-spec success(term(), term(), [term()]) -> success(term(), term(), [term()]).
 success(Res, S, A) ->
     {ok, Res, S, A}.
 
@@ -125,33 +130,29 @@ is_failure(_) ->
 
 %%% Module API
 
--spec attributes(Module::module()) -> [{atom(), term()}].
-attributes(Module) ->
-    Module:module_info(attributes).
+-spec attributes(module()) -> [{atom(), term()}].
+attributes(Mod) ->
+    Mod:module_info(attributes).
 
--spec behaviours(Module::module()) -> [atom()].
-behaviours(Module) ->
-    [Name|| {behaviour, [Name]} <- attributes(Module)].
+-spec behaviours(module()) -> [atom()].
+behaviours(Mod) ->
+    [Name|| {behaviour, [Name]} <- attributes(Mod)].
 
--spec optional_callback(Module::module(), Fun::atom(), Args::list()) -> 
-          term().
-optional_callback(Module, Fun, Args) ->
-    optional_callback(Module, Fun, Args, success()).
-
--spec optional_callback(Module::module(), Fun::atom(), Args::[term()], Def::term()) ->
-          term().
-optional_callback(Module, Fun, Args, Def) ->
-    case erlang:function_exported(Module, Fun, length(Args)) of
+-spec callback(module(), atom(), [term()], term()) -> term().
+callback(M, F, A, Def) ->
+    case erlang:function_exported(M, F, length(A)) of
         true ->
-            erlang:apply(Module, Fun, Args);
+            erlang:apply(M, F, A);
         _  -> 
-            Def 
+            erlang:apply(Def, A) 
     end.
 
--spec vsn(Module::module()) -> binary() | integer().
-vsn(Module) ->
-    {_, [Vsn]} = lists:keyfind('vsn', 1, attributes(Module)),
-    Vsn.
+-spec vsn(module()) -> binary() | integer().
+vsn(Mod) ->
+    {_, [Vsn]} = lists:keyfind(vsn, 1, attributes(Mod)),
+    
+    Res = Vsn,
+    Res.
 
 %% Timestamp API
 
