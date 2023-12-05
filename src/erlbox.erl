@@ -13,7 +13,9 @@
 -export([is_success/1, is_failure/1]).
 
 -export([attributes/1]).
--export([behaviours/1, callback/4]).
+-export([behaviours/1]).
+
+-export([callback/3, callback/4]).
 
 -export([vsn/1]).
 
@@ -137,6 +139,15 @@ attributes(Mod) ->
 -spec behaviours(module()) -> [atom()].
 behaviours(Mod) ->
     [Name|| {behaviour, [Name]} <- attributes(Mod)].
+
+-spec callback(module(), atom(), [term()]) -> term().
+callback(M, F, A) ->
+    case erlang:function_exported(M, F, length(A)) of
+        true ->
+            erlang:apply(M, F, A);
+        _  -> 
+            erlang:error(not_implemented, A)
+    end.
 
 -spec callback(module(), atom(), [term()], term()) -> term().
 callback(M, F, A, Def) ->
